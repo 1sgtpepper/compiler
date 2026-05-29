@@ -15,6 +15,7 @@ use crate::{
 };
 
 mod base;
+mod canonabi;
 mod macros;
 mod stdlib;
 
