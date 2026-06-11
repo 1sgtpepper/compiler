@@ -38,7 +38,7 @@ fn storage_example() {
         supported-types = ["RegularAccountUpdatableCode"]
 
         [[storage.slots]]
-        name = "storage_example::my_account::asset_qty_map"
+        name = "storage_example::foo::asset_qty_map"
         description = "asset quantity map"
 
         [storage.slots.type]
@@ -46,7 +46,7 @@ fn storage_example() {
         value = "felt"
 
         [[storage.slots]]
-        name = "storage_example::my_account::owner_public_key"
+        name = "storage_example::foo::owner_public_key"
         description = "owner public key"
         type = "word"
     "#]]
