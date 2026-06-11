@@ -26,6 +26,9 @@ pub struct ManifestPackage {
     pub target: miden_project::Target,
     pub description: Arc<str>,
     pub supported_types: Vec<String>,
+    /// Whether the crate has a `miden-project.toml`; when false, the package and target metadata
+    /// above are synthesized placeholders.
+    pub has_miden_project_toml: bool,
 }
 
 /// Project package metadata needed to resolve dependency WIT imports.
@@ -114,6 +117,7 @@ impl ManifestPackage {
                 target,
                 description: Default::default(),
                 supported_types: vec![],
+                has_miden_project_toml: false,
             });
         }
 
@@ -204,6 +208,7 @@ impl ManifestPackage {
             target,
             description,
             supported_types,
+            has_miden_project_toml: true,
         })
     }
 
