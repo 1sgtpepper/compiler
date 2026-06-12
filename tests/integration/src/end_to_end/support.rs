@@ -13,26 +13,33 @@ use proptest::{
 use crate::compiler_test::{sdk_alloc_crate_path, sdk_crate_path};
 
 const I32_INTRINSICS_MASM: &str = include_str!("../../../../codegen/masm/intrinsics/i32.masm");
+const I64_INTRINSICS_MASM: &str = include_str!("../../../../codegen/masm/intrinsics/i64.masm");
 
 /// Assembles an executable program that wraps `procedure_body` inside a procedure that is called
 /// as entry point.
 ///
-/// The intrinsics module `codegen/masm/intrinsics/i32.masm` is statically linked so the body can
-/// call these intrinsics by their fully-qualified path.
+/// Both i32 and i64 intrinsics modules are statically linked so the body can call the intrinsics
+/// of either type by their fully-qualified path (`::intrinsics::i32::*` or `::intrinsics::i64::*`).
 pub(super) fn assemble_test_program(procedure_body: &str) -> Program {
     let source_manager = Arc::new(DefaultSourceManager::default());
     let core_library = CoreLibrary::default();
 
-    // Parse the intrinsic module with its fully-qualified path
+    // Parse both intrinsic modules with their fully-qualified paths
     let i32_intrinsics = I32_INTRINSICS_MASM
         .parse_with_options(
             source_manager.clone(),
             ParseOptions::new(ModuleKind::Library, "::intrinsics::i32"),
         )
         .expect("failed to parse i32 intrinsics module");
+    let i64_intrinsics = I64_INTRINSICS_MASM
+        .parse_with_options(
+            source_manager.clone(),
+            ParseOptions::new(ModuleKind::Library, "::intrinsics::i64"),
+        )
+        .expect("failed to parse i64 intrinsics module");
 
     // Parse the test module with its fully-qualified path
-    let test_module_source = format!("pub proc test_i32_intrinsic\n{procedure_body}\nend");
+    let test_module_source = format!("pub proc test_intrinsic\n{procedure_body}\nend");
     let test_module = test_module_source
         .parse_with_options(
             source_manager.clone(),
@@ -40,10 +47,17 @@ pub(super) fn assemble_test_program(procedure_body: &str) -> Program {
         )
         .expect("failed to parse test module");
 
-    let mut assembler = Assembler::new(source_manager.clone());
+    // The i64 intrinsics module references core library symbols, so core must be available during
+    // compile_and_statically_link.
+    let mut assembler = Assembler::new(source_manager.clone())
+        .with_static_library(core_library.library())
+        .expect("failed to link core library");
     assembler
         .compile_and_statically_link(i32_intrinsics)
         .expect("failed to statically link i32 intrinsics");
+    assembler
+        .compile_and_statically_link(i64_intrinsics)
+        .expect("failed to statically link i64 intrinsics");
 
     let library = assembler
         .assemble_library([test_module])
@@ -58,7 +72,7 @@ pub(super) fn assemble_test_program(procedure_body: &str) -> Program {
 use miden::core::sys
 
 begin
-    exec.::test::test_i32_intrinsic
+    exec.::test::test_intrinsic
     exec.sys::truncate_stack
 end
 "#,
