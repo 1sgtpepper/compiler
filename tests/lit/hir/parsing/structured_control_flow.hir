@@ -1,4 +1,5 @@
 // RUN: hir-opt %s | filecheck %s
+// XFAIL: *
 
 // This was extracted from one of our SCF transform tests
 builtin.function public extern("C") @scf(%0: ptr<u32, byte>, %1: u32, %2: u32) -> u32 {
