@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - next
+      - ci/pr1195-public-hosted-runners
     paths-ignore:
       - "**.md"
       - "**.txt"
@@ -45,7 +46,7 @@ jobs:
 
   lint:
     name: lint
-    runs-on: warp-ubuntu-latest-x64-8x
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
@@ -73,7 +74,7 @@ jobs:
 
   check_format:
     name: check formatting
-    runs-on: warp-ubuntu-latest-x64-8x
+    runs-on: ubuntu-latest
     # Run this job after the linter, so the cache is hot
     needs: [lint]
     # But run this check even if the lint check failed
@@ -134,7 +135,7 @@ jobs:
 
   unit_tests:
     name: midenc unit tests
-    runs-on: warp-ubuntu-latest-x64-8x
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
@@ -169,7 +170,7 @@ jobs:
 
   release_profile_tests:
     name: midenc release-profile tests
-    runs-on: warp-ubuntu-latest-x64-8x
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
@@ -198,7 +199,7 @@ jobs:
 
   lit_tests:
     name: midenc lit/filecheck tests
-    runs-on: warp-ubuntu-latest-x64-8x
+    runs-on: ubuntu-latest
     # We only want to run our lit tests if the unit tests pass, and that has the added
     # benefit that we can re-use the cache from the unit test job
     needs: [unit_tests]
@@ -229,7 +230,7 @@ jobs:
 
   midenc_integration_tests:
     name: midenc integration tests
-    runs-on: warp-ubuntu-latest-x64-8x
+    runs-on: ubuntu-latest
     # We only want to run the integration tests if the unit tests pass, and that has the added
     # benefit that we can re-use the cache from the unit test job for all integration tests
     needs: [unit_tests]
@@ -261,7 +262,7 @@ jobs:
 
   midenc_integration_tests_examples:
     name: midenc integration tests
-    runs-on: warp-ubuntu-latest-x64-8x
+    runs-on: ubuntu-latest
     # We only want to run the integration tests if the unit tests pass, and that has the added
     # benefit that we can re-use the cache from the unit test job for all integration tests
     needs: [unit_tests]
@@ -293,7 +294,7 @@ jobs:
 
   cargo_miden_integration_tests:
     name: cargo-miden integration tests
-    runs-on: warp-ubuntu-latest-x64-8x
+    runs-on: ubuntu-latest
     # We only want to run the integration tests if the unit tests pass, and that has the added
     # benefit that we can re-use the cache from the unit test job for all integration tests
     needs: [unit_tests]
@@ -325,7 +326,7 @@ jobs:
 
   cargo_miden_tests_templates_and_examples:
     name: cargo-miden test new project templates and examples
-    runs-on: warp-ubuntu-latest-x64-8x
+    runs-on: ubuntu-latest
     # We only want to run the integration tests if the unit tests pass, and that has the added
     # benefit that we can re-use the cache from the unit test job for all integration tests
     needs: [unit_tests]
@@ -356,7 +357,7 @@ jobs:
 
   miden_integration_node_tests:
     name: miden integration node tests
-    runs-on: warp-ubuntu-latest-x64-8x
+    runs-on: ubuntu-latest
     # We only want to run the integration tests if the unit tests pass, and that has the added
     # benefit that we can re-use the cache from the unit test job for all integration tests
     needs: [unit_tests]
@@ -387,7 +388,7 @@ jobs:
 
   check_release:
     name: release checks
-    runs-on: warp-ubuntu-latest-x64-8x
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
@@ -422,7 +423,7 @@ jobs:
 
   cargo_publish_dry_run:
     name: cargo publish dry run
-    runs-on: warp-ubuntu-latest-x64-8x
+    runs-on: ubuntu-latest
     needs: [unit_tests]
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
