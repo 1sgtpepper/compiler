@@ -1907,6 +1907,53 @@ mod tests {
     }
 
     #[test]
+    fn op_emitter_full_width_uint_range_checks_use_zero_mask() {
+        let span = SourceSpan::UNKNOWN;
+
+        let mut block = Vec::default();
+        let context = Rc::new(Context::default());
+        let mut stack = OperandStack::new(context.clone());
+        let mut invoked = BTreeSet::default();
+        let mut emitter = OpEmitter::new(&mut invoked, &mut block, &mut stack);
+
+        emitter.push(Type::U32);
+        emitter.int32_to_uint(32, span);
+
+        {
+            let ops = emitter.current_block();
+            assert_eq!(ops.len(), 4);
+            assert_eq!(&ops[0], &Op::Inst(Span::new(span, masm::Instruction::Dup0)));
+            assert_eq!(&ops[1], &push!(0u32));
+            assert_eq!(&ops[2], &Op::Inst(Span::new(span, masm::Instruction::U32And)));
+            assert!(matches!(
+                &ops[3],
+                Op::Inst(inst)
+                    if matches!(inst.inner(), masm::Instruction::AssertzWithError(_))
+            ));
+        }
+
+        let mut block = Vec::default();
+        let mut stack = OperandStack::new(context);
+        let mut invoked = BTreeSet::default();
+        let mut emitter = OpEmitter::new(&mut invoked, &mut block, &mut stack);
+
+        emitter.push(Type::U32);
+        emitter.try_int32_to_uint(32, span);
+
+        {
+            let ops = emitter.current_block();
+            assert_eq!(ops.len(), 4);
+            assert_eq!(&ops[0], &Op::Inst(Span::new(span, masm::Instruction::Dup0)));
+            assert_eq!(&ops[1], &push!(0u32));
+            assert_eq!(&ops[2], &Op::Inst(Span::new(span, masm::Instruction::U32And)));
+            assert_eq!(
+                &ops[3],
+                &Op::Inst(Span::new(span, masm::Instruction::EqImm(Felt::ZERO.into())))
+            );
+        }
+    }
+
+    #[test]
     fn op_emitter_u32_inttoptr_test() {
         let mut block = Vec::default();
         let context = Rc::new(Context::default());
