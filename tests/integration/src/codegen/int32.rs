@@ -114,12 +114,14 @@ fn assert_cast_traps(
 ) {
     match try_eval_guarded_cast(package, context, args) {
         Ok(actual) => panic!(
-            "expected checked {source_name}-to-{target_name} cast of {} to trap, but returned {actual}",
+            "expected checked {source_name}-to-{target_name} cast of {} to trap, but returned \
+             {actual}",
             args[2]
         ),
         Err(err) => assert!(
             err.contains("does not fit in unsigned"),
-            "expected checked {source_name}-to-{target_name} cast of {} to fail the unsigned range check, got: {err}",
+            "expected checked {source_name}-to-{target_name} cast of {} to fail the unsigned \
+             range check, got: {err}",
             args[2]
         ),
     }
